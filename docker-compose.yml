@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  hello-world-service:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    networks:
+      services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./configuration/monitoring/grafana:/etc/datasources
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      monitoring:
+        aliases:
+          - grafana
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configuration/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    networks:
+      services:
+      monitoring:
+        aliases:
+          - prometheus
+networks:
+  services:
+  monitoring:
+
+volumes:
+  grafana:
+  prometheus:
